@@ -1,0 +1,6 @@
+{
+  "name": "MobTrack",
+  "description": "Locates the registered country or region of a phone number and allows voluntary pair tracking. Note: Real-time precise device tracking without consent is impossible via open APIs.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
