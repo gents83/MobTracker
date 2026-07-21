@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { parsePhoneNumber, isValidPhoneNumber, getCountryCallingCode, CountryCode } from 'libphonenumber-js';
-import { Search, ShieldAlert, Crosshair, MapPin, AlertTriangle, Info, Terminal, Sun, Moon, Link, Users, Share2, Check, Clock, Send, MessageSquare, X, Eye, EyeOff, History } from 'lucide-react';
+import { Search, ShieldAlert, Crosshair, MapPin, AlertTriangle, Info, Terminal, Sun, Moon, Link, Users, Share2, Check, Clock, Send, MessageSquare, X, Eye, EyeOff, History, RefreshCw, Download, BookmarkPlus, Trash2, ChevronRight, BellRing, BellOff } from 'lucide-react';
 import Radar from './components/Radar';
 import RegionMap from './components/RegionMap';
 
@@ -73,6 +73,7 @@ export default function App() {
   const [pairLink, setPairLink] = useState<string | null>(null);
   const [pairResult, setPairResult] = useState<{lat: number, lng: number} | null>(null);
   const [isPairPolling, setIsPairPolling] = useState(false);
+  const [pollingInterval, setPollingInterval] = useState(5000);
 
   // Pair Tracking Receiver State
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
@@ -84,13 +85,93 @@ export default function App() {
   
   // Custom message for pair tracking
   const [customMessage, setCustomMessage] = useState('I invite you to share your live location via MobTrack. Tap here to accept:');
+  const [geofenceEnabled, setGeofenceEnabled] = useState(false);
+  const [geofenceRadius, setGeofenceRadius] = useState(100);
+  const [geofenceAlert, setGeofenceAlert] = useState(false);
+
+  useEffect(() => {
+    if (geofenceEnabled && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, [geofenceEnabled]);
+
+
 
   // Location History State
+  const [savedPairs, setSavedPairs] = useState<{id: string, name: string, date: string}[]>(() => {
+    const saved = localStorage.getItem('savedPairs');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const saveCurrentPair = () => {
+    if (!pairId) return;
+    if (savedPairs.some(p => p.id === pairId)) {
+      alert('This pair is already saved.');
+      return;
+    }
+    const name = prompt("Enter a name for this persistent pair:");
+    if (!name) return;
+    const updated = [...savedPairs, { id: pairId, name, date: new Date().toISOString() }];
+    setSavedPairs(updated);
+    localStorage.setItem('savedPairs', JSON.stringify(updated));
+  };
+
+  const connectSavedPair = (id: string) => {
+    setPairId(id);
+    const link = `${window.location.origin}/?pair=${id}`;
+    setPairLink(link);
+    setIsPairPolling(true);
+  };
+  
+  const removeSavedPair = (id: string) => {
+    const updated = savedPairs.filter(p => p.id !== id);
+    setSavedPairs(updated);
+    localStorage.setItem('savedPairs', JSON.stringify(updated));
+  };
+
   const [locationHistory, setLocationHistory] = useState<LocationHistoryEntry[]>(() => {
     const saved = localStorage.getItem('locationHistory');
     return saved ? JSON.parse(saved) : [];
   });
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [historySearchQuery, setHistorySearchQuery] = useState('');
+
+  useEffect(() => {
+    if (!geofenceEnabled || !pairResult || !pairId || locationHistory.length === 0) {
+      setGeofenceAlert(false);
+      return;
+    }
+    
+    // Find the first location in this session
+    const sessionLocs = locationHistory.filter(l => l.id === pairId);
+    if (sessionLocs.length === 0) return;
+    
+    const startLoc = sessionLocs[sessionLocs.length - 1]; // last element is the first entry because we unshift
+    
+    // Calculate distance between startLoc and pairResult
+    const R = 6371e3; // meters
+    const dLat = (pairResult.lat - startLoc.lat) * Math.PI / 180;
+    const dLon = (pairResult.lng - startLoc.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(startLoc.lat * Math.PI / 180) * Math.cos(pairResult.lat * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    const distance = R * c;
+    
+    if (distance > geofenceRadius) {
+      if (!geofenceAlert) {
+        setGeofenceAlert(true);
+        if (Notification.permission === 'granted') {
+          new Notification('MobTrack Geofence Alert', {
+            body: `Device has moved outside the ${geofenceRadius}m radius (${distance.toFixed(0)}m away).`,
+          });
+        }
+      }
+    } else {
+      setGeofenceAlert(false);
+    }
+  }, [pairResult, geofenceEnabled, geofenceRadius, pairId, locationHistory, geofenceAlert]);
 
   const addToHistory = React.useCallback((id: string, lat: number, lng: number) => {
     setLocationHistory(prev => {
@@ -107,6 +188,29 @@ export default function App() {
   const clearHistory = () => {
     setLocationHistory([]);
     localStorage.removeItem('locationHistory');
+  };
+
+  const exportCSV = () => {
+    if (locationHistory.length === 0) return;
+    
+    const headers = ['Session ID', 'Latitude', 'Longitude', 'Timestamp'];
+    const rows = locationHistory.map(entry => [
+      entry.id,
+      entry.lat,
+      entry.lng,
+      new Date(entry.timestamp).toISOString()
+    ]);
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `mobtrack_history_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   useEffect(() => {
@@ -264,7 +368,7 @@ export default function App() {
       }
       
       if (isMounted && isPairPolling) {
-        timeoutId = window.setTimeout(poll, 3000);
+        timeoutId = window.setTimeout(poll, pollingInterval);
       }
     };
 
@@ -276,7 +380,7 @@ export default function App() {
       isMounted = false;
       window.clearTimeout(timeoutId);
     };
-  }, [pairId, isPairPolling, addToHistory]);
+  }, [pairId, isPairPolling, addToHistory, pollingInterval]);
 
   const shareText = `${customMessage} ${pairLink}`;
 
@@ -625,13 +729,49 @@ export default function App() {
               </div>
 
               {!pairId ? (
-                <button
-                  onClick={generatePairLink}
-                  className={`w-full font-bold tracking-widest py-4 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700' : 'bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 shadow-sm'}`}
-                >
-                  <Link className="w-4 h-4" />
-                  GENERATE PAIRING LINK
-                </button>
+                <div className="flex flex-col gap-6">
+                  <button
+                    onClick={generatePairLink}
+                    className={`w-full font-bold tracking-widest py-4 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 ${isDark ? 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700' : 'bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 shadow-sm'}`}
+                  >
+                    <Link className="w-4 h-4" />
+                    GENERATE PAIRING LINK
+                  </button>
+                  
+                  {savedPairs.length > 0 && (
+                    <div className="flex flex-col gap-3">
+                      <h3 className={`text-xs font-bold tracking-widest ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                        SAVED PAIRS
+                      </h3>
+                      <div className="flex flex-col gap-2">
+                        {savedPairs.map(pair => (
+                          <div key={pair.id} className={`flex items-center justify-between p-3 rounded-lg border transition-colors ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-blue-50 border-blue-200'}`}>
+                            <div className="flex flex-col gap-1">
+                              <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-blue-800'}`}>{pair.name}</span>
+                              <span className={`text-xs font-mono ${isDark ? 'text-slate-500' : 'text-blue-500/70'}`}>{pair.id.substring(0,8)}... • {new Date(pair.date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => connectSavedPair(pair.id)}
+                                className={`p-2 rounded-full transition-colors ${isDark ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                title="Connect"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => removeSavedPair(pair.id)}
+                                className={`p-2 rounded-full transition-colors ${isDark ? 'bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'bg-red-100 text-red-600 hover:bg-red-200'}`}
+                                title="Remove"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className={`border rounded-xl p-6 flex flex-col gap-4 transition-colors ${isDark ? 'bg-slate-800/50 border-emerald-500/30' : 'bg-white border-blue-300 shadow-md'}`}>
                   <h3 className={`text-sm font-bold tracking-widest text-center ${isDark ? 'text-emerald-400' : 'text-blue-600'}`}>
@@ -642,10 +782,22 @@ export default function App() {
                     {pairLink}
                   </div>
 
-                  <div className="flex justify-center my-2">
+                  <div className="flex flex-col items-center gap-4 my-2">
                     <div className={`p-3 bg-white rounded-xl ${isDark ? '' : 'border border-blue-200 shadow-sm'}`}>
                       <QRCodeSVG value={pairLink || ''} size={150} level="M" />
                     </div>
+                    <button
+                      onClick={saveCurrentPair}
+                      className={`px-4 py-2 text-xs font-bold tracking-widest rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm ${
+                        savedPairs.some(p => p.id === pairId)
+                          ? (isDark ? 'bg-slate-800 text-slate-500 border border-slate-700 cursor-not-allowed' : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed')
+                          : (isDark ? 'bg-emerald-900/40 text-emerald-400 border border-emerald-500/50 hover:bg-emerald-900/60' : 'bg-blue-100 text-blue-700 border border-blue-300 hover:bg-blue-200')
+                      }`}
+                      disabled={savedPairs.some(p => p.id === pairId)}
+                    >
+                      <BookmarkPlus className="w-4 h-4" />
+                      {savedPairs.some(p => p.id === pairId) ? 'PAIR SAVED' : 'SAVE PAIR'}
+                    </button>
                   </div>
 
                   <div className="flex flex-col gap-2">
@@ -689,18 +841,83 @@ export default function App() {
                     </button>
                   </div>
                   
-                  <div className="flex justify-center py-4">
-                    <div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin ${isDark ? 'border-emerald-500' : 'border-blue-500'}`} />
+                  <div className={`mt-2 pt-4 border-t flex flex-col gap-4 ${isDark ? 'border-slate-700' : 'border-blue-200'}`}>
+                    <div className="flex items-center justify-between">
+                      <label className={`text-xs font-semibold tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                        <RefreshCw className={`w-3.5 h-3.5 ${isPairPolling ? 'animate-spin text-emerald-500' : ''}`} />
+                        AUTO-REFRESH
+                      </label>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          className="sr-only peer" 
+                          checked={isPairPolling}
+                          onChange={(e) => setIsPairPolling(e.target.checked)}
+                        />
+                        <div className={`w-9 h-5 rounded-full peer peer-focus:ring-2 transition-colors ${
+                          isDark 
+                            ? 'bg-slate-700 peer-focus:ring-emerald-500/50 peer-checked:bg-emerald-500' 
+                            : 'bg-slate-200 peer-focus:ring-blue-500/50 peer-checked:bg-blue-500'
+                        } after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white`}></div>
+                      </label>
+                    </div>
+                    {isPairPolling && (
+                      <div className="flex justify-between items-center animate-in fade-in slide-in-from-top-1 duration-200">
+                        <span className={`text-xs ${isDark ? 'text-slate-500' : 'text-slate-500'}`}>Polling Interval</span>
+                        <div className="flex gap-2">
+                          {[5000, 10000, 30000].map(interval => (
+                            <button
+                              key={interval}
+                              onClick={() => setPollingInterval(interval)}
+                              className={`px-2 py-1 text-xs rounded border transition-colors ${
+                                pollingInterval === interval
+                                  ? (isDark ? 'bg-slate-700 border-slate-500 text-white' : 'bg-blue-100 border-blue-400 text-blue-800')
+                                  : (isDark ? 'bg-slate-800/50 border-slate-700 text-slate-400 hover:bg-slate-700' : 'bg-white border-blue-200 text-blue-600 hover:bg-blue-50')
+                              }`}
+                            >
+                              {interval / 1000}s
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex justify-center pt-2">
+                      <div className={`w-6 h-6 border-2 border-t-transparent rounded-full animate-spin ${isDark ? 'border-emerald-500' : 'border-blue-500'}`} style={{ display: isPairPolling ? 'block' : 'none' }} />
+                    </div>
                   </div>
                 </div>
               )}
 
               {pairResult && (
                 <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className={`rounded-xl p-4 border flex flex-col gap-2 transition-colors ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-blue-50 border-blue-200'}`}>
-                    <h3 className={`text-xs font-semibold tracking-wider flex items-center gap-2 transition-colors ${isDark ? 'text-slate-500' : 'text-blue-500'}`}>
-                      <MapPin className="w-3 h-3" /> PAIR LOCATION DATA ACQUIRED
-                    </h3>
+                  <div className={`rounded-xl p-4 border flex flex-col gap-2 transition-colors ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-blue-50 border-blue-200'} ${geofenceAlert ? (isDark ? 'ring-2 ring-red-500/50' : 'ring-2 ring-red-500') : ''}`}>
+                    <div className="flex justify-between items-start">
+                      <h3 className={`text-xs font-semibold tracking-wider flex items-center gap-2 transition-colors ${isDark ? 'text-slate-500' : 'text-blue-500'}`}>
+                        <MapPin className="w-3 h-3" /> PAIR LOCATION DATA ACQUIRED
+                      </h3>
+                      <button 
+                        onClick={() => setGeofenceEnabled(!geofenceEnabled)}
+                        className={`p-1.5 rounded-lg border transition-colors flex items-center gap-1 text-xs font-bold ${geofenceEnabled ? (isDark ? 'bg-emerald-900/50 border-emerald-500 text-emerald-400' : 'bg-blue-100 border-blue-400 text-blue-700') : (isDark ? 'bg-slate-900 border-slate-700 text-slate-500' : 'bg-white border-blue-200 text-blue-400')}`}
+                        title="Toggle Geofence Alert"
+                      >
+                        {geofenceEnabled ? <BellRing className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
+                        GEOFENCE
+                      </button>
+                    </div>
+                    {geofenceEnabled && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <label className={`text-[10px] font-bold tracking-wider ${isDark ? 'text-slate-500' : 'text-blue-400'}`}>RADIUS (m):</label>
+                        <input 
+                          type="number" 
+                          min="10" 
+                          step="10"
+                          value={geofenceRadius} 
+                          onChange={(e) => setGeofenceRadius(Number(e.target.value) || 100)}
+                          className={`w-20 text-xs p-1 rounded border ${isDark ? 'bg-slate-900 border-slate-700 text-slate-300' : 'bg-white border-blue-200 text-blue-800'}`}
+                        />
+                        {geofenceAlert && <span className="text-[10px] font-bold text-red-500 animate-pulse ml-auto">ALERT: OUTSIDE RADIUS</span>}
+                      </div>
+                    )}
                     <div className={`mt-2 p-3 rounded-lg border font-mono text-sm flex items-center justify-between transition-colors ${isDark ? 'bg-slate-900 border-slate-700/50 text-slate-400' : 'bg-white border-blue-200 text-blue-800'}`}>
                       <div>
                         <div>LAT: {isPrivacyMode && !isRevealed ? 'REDACTED' : pairResult.lat.toFixed(4)}</div>
@@ -730,12 +947,21 @@ export default function App() {
                   LOCATION HISTORY
                 </h2>
                 {locationHistory.length > 0 && (
-                  <button 
-                    onClick={clearHistory}
-                    className={`text-xs px-3 py-1.5 rounded border transition-colors ${isDark ? 'border-red-500/50 text-red-400 hover:bg-slate-800' : 'border-red-200 text-red-600 hover:bg-red-50'}`}
-                  >
-                    CLEAR
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={exportCSV}
+                      className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded border transition-colors ${isDark ? 'border-emerald-500/50 text-emerald-400 hover:bg-slate-800' : 'border-blue-200 text-blue-600 hover:bg-blue-50'}`}
+                      title="Export CSV"
+                    >
+                      <Download className="w-3.5 h-3.5" /> EXPORT
+                    </button>
+                    <button 
+                      onClick={clearHistory}
+                      className={`text-xs px-3 py-1.5 rounded border transition-colors ${isDark ? 'border-red-500/50 text-red-400 hover:bg-slate-800' : 'border-red-200 text-red-600 hover:bg-red-50'}`}
+                    >
+                      CLEAR
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -758,22 +984,83 @@ export default function App() {
                       SESSION: {selectedSessionId.substring(0, 8)}...
                     </div>
                   </div>
-                  <div className={`h-[400px] w-full rounded-xl overflow-hidden border relative transition-colors ${isDark ? 'border-slate-700' : 'border-blue-300'}`}>
-                    {(() => {
-                      const sessionLocs = locationHistory.filter(l => l.id === selectedSessionId);
-                      if (sessionLocs.length === 0) return null;
-                      const latest = sessionLocs[0];
-                      return <RegionMap key={`history-${selectedSessionId}-${theme}`} lat={latest.lat} lng={latest.lng} locations={sessionLocs} theme={theme} privacyMode={isPrivacyMode && !isRevealed} />;
-                    })()}
-                  </div>
+                  {(() => {
+                    const sessionLocs = locationHistory.filter(l => l.id === selectedSessionId);
+                    if (sessionLocs.length === 0) return null;
+                    
+                    const latest = sessionLocs[0];
+                    const first = sessionLocs[sessionLocs.length - 1];
+                    let distance = 0;
+                    if (sessionLocs.length > 1) {
+                      const R = 6371; // km
+                      const dLat = (latest.lat - first.lat) * Math.PI / 180;
+                      const dLon = (latest.lng - first.lng) * Math.PI / 180;
+                      const a = 
+                        Math.sin(dLat/2) * Math.sin(dLat/2) +
+                        Math.cos(first.lat * Math.PI / 180) * Math.cos(latest.lat * Math.PI / 180) * 
+                        Math.sin(dLon/2) * Math.sin(dLon/2); 
+                      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+                      distance = R * c;
+                    }
+
+                    return (
+                      <div className="flex flex-col gap-4">
+                        {sessionLocs.length > 1 && (
+                          <div className={`p-4 rounded-xl border flex items-center justify-between transition-colors ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-blue-50 border-blue-200'}`}>
+                            <div className={`text-xs font-semibold tracking-wider flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-blue-600'}`}>
+                              <Crosshair className="w-4 h-4" /> STRAIGHT-LINE DISTANCE
+                            </div>
+                            <div className={`font-mono font-bold ${isDark ? 'text-emerald-400' : 'text-blue-700'}`}>
+                              {isPrivacyMode && !isRevealed ? 'REDACTED' : `${distance.toFixed(2)} km`}
+                            </div>
+                          </div>
+                        )}
+                        <div className={`h-[400px] w-full rounded-xl overflow-hidden border relative transition-colors ${isDark ? 'border-slate-700' : 'border-blue-300'}`}>
+                          <RegionMap key={`history-${selectedSessionId}-${theme}`} lat={latest.lat} lng={latest.lng} locations={sessionLocs} theme={theme} privacyMode={isPrivacyMode && !isRevealed} />
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               ) : (
-                <div className="flex flex-col gap-3">
-                  {Object.entries(locationHistory.reduce((acc, entry) => {
-                    if (!acc[entry.id]) acc[entry.id] = [];
-                    acc[entry.id].push(entry);
-                    return acc;
-                  }, {} as Record<string, LocationHistoryEntry[]>)).map(([id, entriesRaw]) => {
+                <div className="flex flex-col gap-4">
+                  <div className="relative">
+                    <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isDark ? 'text-slate-500' : 'text-blue-400'}`} />
+                    <input
+                      type="text"
+                      placeholder="Search Session ID or Time..."
+                      value={historySearchQuery}
+                      onChange={(e) => setHistorySearchQuery(e.target.value)}
+                      className={`w-full pl-9 pr-4 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 transition-colors ${
+                        isDark 
+                          ? 'bg-slate-800/50 border-slate-700 text-white placeholder-slate-500 focus:ring-emerald-500/50' 
+                          : 'bg-white border-blue-200 text-slate-800 placeholder-slate-400 focus:ring-blue-500/50'
+                      }`}
+                    />
+                    {historySearchQuery && (
+                      <button 
+                        onClick={() => setHistorySearchQuery('')}
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-slate-500 hover:text-slate-300' : 'text-blue-400 hover:text-blue-600'}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {Object.entries(locationHistory.reduce((acc, entry) => {
+                      if (!acc[entry.id]) acc[entry.id] = [];
+                      acc[entry.id].push(entry);
+                      return acc;
+                    }, {} as Record<string, LocationHistoryEntry[]>))
+                    .filter(([id, entriesRaw]) => {
+                      if (!historySearchQuery) return true;
+                      const q = historySearchQuery.toLowerCase();
+                      if (id.toLowerCase().includes(q)) return true;
+                      const entries = entriesRaw as LocationHistoryEntry[];
+                      const timeStr = new Date(entries[0].timestamp).toLocaleTimeString().toLowerCase();
+                      return timeStr.includes(q);
+                    })
+                    .map(([id, entriesRaw]) => {
                     const entries = entriesRaw as LocationHistoryEntry[];
                     return (
                     <div key={id} className={`border rounded-xl p-4 flex flex-col gap-3 transition-colors ${isDark ? 'bg-slate-800/50 border-slate-700' : 'bg-white border-blue-200 shadow-sm'}`}>
@@ -796,6 +1083,7 @@ export default function App() {
                       </button>
                     </div>
                   )})}
+                  </div>
                 </div>
               )}
             </div>
