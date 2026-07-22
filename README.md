@@ -5,7 +5,7 @@
 [![Platform](https://img.shields.io/badge/Platforms-Web%20%7C%20Android%20%7C%20iOS-brightgreen?style=flat)](https://github.com/gents83/MobTracker)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-**MobTracker (MOBTRACK_OS)** is a state-of-the-art, offline-first hybrid mobile and web application built with **React**, **TypeScript**, and **Capacitor**. It acts as both a tactical, offline-capable phone region lookup utility and a secure, serverless peer-to-peer voluntary device tracking system using public, lightweight pub/sub message relays.
+**MobTracker (MOBTRACK_OS)** is a state-of-the-art, offline-first hybrid mobile and web application built with **React**, **TypeScript**, and **Capacitor**. It acts as both a tactical, offline-capable phone region lookup utility and a secure, serverless peer-to-peer device tracking system using public, lightweight pub/sub message relays.
 
 Developed as a single-page application (SPA), MobTracker compiles seamlessly into standard web assets hosted on **GitHub Pages**, as well as native **Android** and **iOS** packages.
 
@@ -35,7 +35,7 @@ Real-time, arbitrary pinpoint tracking via phone numbers is legally restricted a
 * **Privacy Controls:** Includes a military-grade **Privacy Mode** (Redaction Toggle) that obscures/reducts latitude and longitude coordinates and requires a manual "REVEAL" action to show.
 * **Recent Searches Cache:** Remembers recent queries in a secure local cache with an absolute one-click clean/remove capability.
 
-### 2. 🤝 Voluntary Pair Tracking (Peer-to-Peer Uplink)
+### 2. 🤝 Pair Tracking (Peer-to-Peer Uplink)
 For active real-time tracking, MobTracker utilizes a zero-server, serverless, opt-in volunteer-pairing protocol.
 * **Serverless HTTP Relay:** Leverages the free public HTTP push/subscription service [`ntfy.sh`](https://ntfy.sh/) as a highly efficient real-time message exchange bridge. No login, no database, and no server configuration required.
 * **One-Time Cryptographic Pairing:** Instantly generates a unique, randomized sharing ID with an integrated, locally generated QR Code and pre-formatted invitation templates.
@@ -184,4 +184,4 @@ On every push to the `main` or `master` branch, the workflow triggers the follow
 
 ## ⚖️ Legal Disclaimer
 
-*MobTracker is designed as a secure location utility and prefix mapping educational interface. Voluntary pair tracking relies strictly on standard web sandboxes, user permissions, and user action. Unsanctioned and unauthorized pinpoint tracking of non-consenting users is not supported, technically impossible via public APIs, and violates global telecommunications privacy laws.*
+*MobTracker is designed as a secure location utility and prefix mapping educational interface. Pair tracking relies strictly on standard web sandboxes, user permissions, and user action. Unsanctioned and unauthorized pinpoint tracking of non-consenting users is not supported, technically impossible via public APIs, and violates global telecommunications privacy laws.*
