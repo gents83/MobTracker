@@ -8,6 +8,8 @@ import { parsePhoneNumber, isValidPhoneNumber, getCountryCallingCode, CountryCod
 import { Search, ShieldAlert, Crosshair, MapPin, AlertTriangle, Info, Terminal, Sun, Moon, Link, Users, Share2, Check, Clock, Send, MessageSquare, X, Eye, EyeOff, History, RefreshCw, Download, BookmarkPlus, Trash2, ChevronRight, BellRing, BellOff } from 'lucide-react';
 import Radar from './components/Radar';
 import RegionMap from './components/RegionMap';
+import { localLookup } from './utils/browserLookup';
+import { generatePairId, updatePairLocation, getPairStatus } from './services/pairService';
 
 interface LocationResult {
   lat: number;
@@ -118,7 +120,7 @@ export default function App() {
 
   const connectSavedPair = (id: string) => {
     setPairId(id);
-    const link = `${window.location.origin}/?pair=${id}`;
+    const link = `${window.location.origin}${window.location.pathname}?pair=${id}`;
     setPairLink(link);
     setIsPairPolling(true);
   };
@@ -292,19 +294,7 @@ export default function App() {
       
       setStatusText('QUERYING GLOBAL REGISTRY...');
       
-      const response = await fetch('/api/lookup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ phone: formattedPhone })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to retrieve region data.');
-      }
+      const data = await localLookup(formattedPhone);
 
       setStatusText('TRIANGULATION COMPLETE. REGION LOCKED.');
       await new Promise(r => setTimeout(r, 800));
@@ -330,15 +320,12 @@ export default function App() {
   const generatePairLink = async () => {
     try {
       setError(null);
-      const res = await fetch('/api/pair/create', { method: 'POST' });
-      const data = await res.json();
-      if (data.id) {
-        setPairId(data.id);
-        const link = `${window.location.origin}/?pair=${data.id}`;
-        setPairLink(link);
-        if (navigator.vibrate) navigator.vibrate(50);
-        setIsPairPolling(true);
-      }
+      const id = generatePairId();
+      setPairId(id);
+      const link = `${window.location.origin}${window.location.pathname}?pair=${id}`;
+      setPairLink(link);
+      if (navigator.vibrate) navigator.vibrate(50);
+      setIsPairPolling(true);
     } catch (err) {
       setError('Failed to generate pairing link.');
     }
@@ -353,14 +340,11 @@ export default function App() {
       if (!pairId || !isPairPolling) return;
       
       try {
-        const res = await fetch(`/api/pair/status/${pairId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.active && data.lat && data.lng) {
-            if (isMounted) {
-              setPairResult({ lat: data.lat, lng: data.lng });
-              addToHistory(pairId, data.lat, data.lng);
-            }
+        const data = await getPairStatus(pairId);
+        if (data && data.active && data.lat && data.lng) {
+          if (isMounted) {
+            setPairResult({ lat: data.lat, lng: data.lng });
+            addToHistory(pairId, data.lat, data.lng);
           }
         }
       } catch (err) {
@@ -435,15 +419,10 @@ export default function App() {
     
     navigator.geolocation.watchPosition(
       (position) => {
-        fetch('/api/pair/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: receiverPairId,
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          })
-        }).catch(err => console.error("Failed to update location:", err));
+        if (receiverPairId) {
+          updatePairLocation(receiverPairId, position.coords.latitude, position.coords.longitude)
+            .catch(err => console.error("Failed to update location:", err));
+        }
       },
       (error) => {
         setShareError(error.message || 'Failed to access location.');
