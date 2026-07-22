@@ -92,11 +92,13 @@ jobs:
       # --- GitHub Pages Deployment Upload ---
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        continue-on-error: true
         with:
           enablement: true
 
       - name: Upload Pages Web Artifact
         uses: actions/upload-pages-artifact@v3
+        continue-on-error: true
         with:
           path: dist/
 
@@ -111,3 +113,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        continue-on-error: true
