@@ -38,6 +38,9 @@ jobs:
       - name: Run TypeScript/Lint Checks
         run: npm run lint
 
+      - name: Run Unit Tests
+        run: npm run test
+
       - name: Compile and Build Web Assets
         run: npm run build
 
