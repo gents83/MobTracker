@@ -104,8 +104,8 @@ jobs:
         run: zip -r mobtracker-ios-project.zip ios/App
 
       - name: Create GitHub Release
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
         uses: softprops/action-gh-release@v2
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           name: Release v${{ steps.get_version.outputs.VERSION }}
@@ -128,13 +128,13 @@ jobs:
       # --- GitHub Pages Deployment Upload ---
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         with:
           enablement: true
 
       - name: Upload Pages Web Artifact
         uses: actions/upload-pages-artifact@v3
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
         with:
           path: dist/
 
@@ -149,4 +149,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
