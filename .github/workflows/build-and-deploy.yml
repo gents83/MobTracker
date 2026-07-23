@@ -3,6 +3,8 @@ name: Build and Deploy (Web & Native Mobile)
 on:
   push:
     branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages, creating releases, and uploading artifacts
 permissions:
@@ -102,6 +104,7 @@ jobs:
         run: zip -r mobtracker-ios-project.zip ios/App
 
       - name: Create GitHub Release
+        if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
@@ -124,6 +127,7 @@ jobs:
 
       # --- GitHub Pages Deployment Upload ---
       - name: Upload Pages Web Artifact
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist/
@@ -131,6 +135,7 @@ jobs:
   deploy-pages:
     name: Deploy Web App to GitHub Pages
     needs: build-web-and-native
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

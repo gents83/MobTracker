@@ -17,19 +17,19 @@ describe('CI/CD Workflow Configuration Verification', () => {
     expect(hasContinueOnError).toBe(false);
   });
 
-  it('verifies that the workflow triggers only on push events and not pull_request', () => {
+  it('verifies that the workflow triggers on both push and pull_request events', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');
 
-    // Ensure pull_request trigger is removed to prevent skipped steps/jobs or partial failures
-    expect(content).toContain('on:\n  push:');
-    expect(content).not.toContain('pull_request:');
+    // Ensure both push and pull_request triggers are present
+    expect(content).toContain('push:');
+    expect(content).toContain('pull_request:');
   });
 
-  it('ensures no if condition check is used to skip release or deployment steps', () => {
+  it('ensures release or deployment steps/jobs are conditional and run only on push', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');
 
-    // Make sure we do not use 'if: github.event_name == 'push'' which would cause steps to be skipped on triggers
-    expect(content).not.toContain("if: github.event_name == 'push'");
+    // Make sure we use 'if: github.event_name == 'push'' to protect release and deployment steps/jobs
+    expect(content).toContain("if: github.event_name == 'push'");
   });
 
   it('verifies that the deploy-pages job uses a clean, unconditional environment name to avoid complex state checks', () => {
