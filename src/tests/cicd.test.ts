@@ -17,44 +17,29 @@ describe('CI/CD Workflow Configuration Verification', () => {
     expect(hasContinueOnError).toBe(false);
   });
 
-  it('verifies release and pages steps/jobs are conditioned with if checks', () => {
+  it('verifies that the workflow triggers only on push events and not pull_request', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');
 
-    // Find the Create GitHub Release step block
-    const releaseIndex = content.indexOf('Create GitHub Release');
-    expect(releaseIndex).toBeGreaterThan(-1);
-
-    // Get the block of lines around it
-    const releaseBlock = content.slice(releaseIndex, releaseIndex + 500);
-    expect(releaseBlock).toContain("if: github.event_name == 'push'");
-
-    // Find the Configure GitHub Pages step block
-    const configPagesIndex = content.indexOf('Configure GitHub Pages');
-    expect(configPagesIndex).toBeGreaterThan(-1);
-    const configPagesBlock = content.slice(configPagesIndex, configPagesIndex + 500);
-    expect(configPagesBlock).toContain("if: github.event_name == 'push'");
-
-    // Find the Upload Pages Web Artifact step block
-    const uploadPagesIndex = content.indexOf('Upload Pages Web Artifact');
-    expect(uploadPagesIndex).toBeGreaterThan(-1);
-    const uploadPagesBlock = content.slice(uploadPagesIndex, uploadPagesIndex + 500);
-    expect(uploadPagesBlock).toContain("if: github.event_name == 'push'");
-
-    // Find the Deploy to GitHub Pages step block
-    const deployStepIndex = content.indexOf('Deploy to GitHub Pages');
-    expect(deployStepIndex).toBeGreaterThan(-1);
-    const deployStepBlock = content.slice(deployStepIndex, deployStepIndex + 500);
-    expect(deployStepBlock).toContain("if: github.event_name == 'push'");
+    // Ensure pull_request trigger is removed to prevent skipped steps/jobs or partial failures
+    expect(content).toContain('on:\n  push:');
+    expect(content).not.toContain('pull_request:');
   });
 
-  it('verifies that the deploy-pages job uses a conditional environment name to avoid restricted environments on PRs', () => {
+  it('ensures no if condition check is used to skip release or deployment steps', () => {
+    const content = fs.readFileSync(workflowPath, 'utf8');
+
+    // Make sure we do not use 'if: github.event_name == 'push'' which would cause steps to be skipped on triggers
+    expect(content).not.toContain("if: github.event_name == 'push'");
+  });
+
+  it('verifies that the deploy-pages job uses a clean, unconditional environment name to avoid complex state checks', () => {
     const content = fs.readFileSync(workflowPath, 'utf8');
 
     const environmentIndex = content.indexOf('environment:');
     expect(environmentIndex).toBeGreaterThan(-1);
     const environmentBlock = content.slice(environmentIndex, environmentIndex + 300);
 
-    expect(environmentBlock).toContain("name: ${{ github.event_name == 'push' && 'github-pages' || '' }}");
-    expect(environmentBlock).toContain("url: ${{ github.event_name == 'push' && steps.deployment.outputs.page_url || '' }}");
+    expect(environmentBlock).toContain("name: github-pages");
+    expect(environmentBlock).toContain("url: ${{ steps.deployment.outputs.page_url }}");
   });
 });
