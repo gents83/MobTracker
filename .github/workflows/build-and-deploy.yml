@@ -123,11 +123,6 @@ jobs:
             mobtracker-ios-project.zip
 
       # --- GitHub Pages Deployment Upload ---
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
-
       - name: Upload Pages Web Artifact
         uses: actions/upload-pages-artifact@v3
         with:
