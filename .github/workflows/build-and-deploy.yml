@@ -127,20 +127,21 @@ jobs:
 
       # --- GitHub Pages Deployment Upload ---
       - name: Configure GitHub Pages
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
         uses: actions/configure-pages@v5
-        continue-on-error: true
         with:
           enablement: true
 
       - name: Upload Pages Web Artifact
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
         uses: actions/upload-pages-artifact@v3
-        continue-on-error: true
         with:
           path: dist/
 
   deploy-pages:
     name: Deploy Web App to GitHub Pages
     needs: build-web-and-native
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -149,4 +150,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        continue-on-error: true
