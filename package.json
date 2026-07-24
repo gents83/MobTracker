@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "prepare-resources": "mkdir -p public && cp -r node_modules/libphonenumber-geo-carrier/resources public/resources",
+    "prepare-resources": "rm -rf public/resources && mkdir -p public && cp -r node_modules/libphonenumber-geo-carrier/resources public/resources",
     "dev": "npm run prepare-resources && tsx server.ts",
     "build": "npm run prepare-resources && vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",

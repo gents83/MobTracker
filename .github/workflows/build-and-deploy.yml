@@ -49,8 +49,9 @@ jobs:
       - name: Compile and Build Web Assets for GitHub Pages
         run: |
           npm run build
-          touch dist/.nojekyll
-          cp dist/index.html dist/404.html
+          cp -r dist/ dist-pages/
+          touch dist-pages/.nojekyll
+          cp dist-pages/index.html dist-pages/404.html
         env:
           GITHUB_PAGES: 'true'
 
@@ -63,7 +64,8 @@ jobs:
         if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/
+          path: dist-pages/
+          include-hidden-files: true
 
       - name: Compile and Build Web Assets for Mobile
         run: npm run build
