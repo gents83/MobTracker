@@ -22,6 +22,10 @@ jobs:
   build-web-and-native:
     name: Build Web & Mobile Apps
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -42,16 +46,30 @@ jobs:
       - name: Run Unit Tests
         run: npm run test
 
+      - name: Compile and Build Web Assets for GitHub Pages
+        run: |
+          npm run build
+          touch dist/.nojekyll
+          cp dist/index.html dist/404.html
+        env:
+          GITHUB_PAGES: 'true'
+
+      # --- GitHub Pages Deployment Upload ---
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Web Artifact
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/
+
       - name: Compile and Build Web Assets for Mobile
         run: npm run build
 
       - name: Sync Capacitor Native Platforms
         run: npx cap sync
-
-      - name: Compile and Build Web Assets for GitHub Pages
-        run: npm run build
-        env:
-          GITHUB_PAGES: 'true'
 
       # --- Android Build ---
       - name: Set up JDK 21
@@ -125,17 +143,6 @@ jobs:
             android/app/build/outputs/apk/release/app-release.apk
             android/app/build/outputs/bundle/release/app-release.aab
             mobtracker-ios-project.zip
-
-      # --- GitHub Pages Deployment Upload ---
-      - name: Configure GitHub Pages
-        if: github.event_name == 'push'
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages Web Artifact
-        if: github.event_name == 'push'
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist/
 
   deploy-pages:
     name: Deploy Web App to GitHub Pages

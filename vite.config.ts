@@ -6,7 +6,9 @@ import {defineConfig} from 'vite';
 export default defineConfig(() => {
   return {
     base: process.env.GITHUB_PAGES === 'true'
-      ? (process.env.GITHUB_REPOSITORY ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/` : '/MobTracker/')
+      ? (process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.includes('/')
+        ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`
+        : '/MobTracker/')
       : '/',
     plugins: [react(), tailwindcss()],
     resolve: {
