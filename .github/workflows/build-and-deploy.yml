@@ -46,6 +46,11 @@ jobs:
       - name: Run Unit Tests
         run: npm run test
 
+      # --- GitHub Pages Deployment Setup ---
+      - name: Configure GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/configure-pages@v5
+
       - name: Compile and Build Web Assets for GitHub Pages
         run: |
           npm run build
@@ -54,11 +59,6 @@ jobs:
           cp dist-pages/index.html dist-pages/404.html
         env:
           GITHUB_PAGES: 'true'
-
-      # --- GitHub Pages Deployment Upload ---
-      - name: Configure GitHub Pages
-        if: github.event_name == 'push'
-        uses: actions/configure-pages@v5
 
       - name: Upload Pages Web Artifact
         if: github.event_name == 'push'
@@ -152,6 +152,7 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
