@@ -51,6 +51,8 @@ jobs:
         id: pages
         if: github.event_name == 'push'
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Compile and Build Web Assets for GitHub Pages
         run: |
