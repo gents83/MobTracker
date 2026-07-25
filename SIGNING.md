@@ -5,11 +5,6 @@ To build and sign the release version of MobTracker for the Google Play Store, w
 ### Keystore Location
 `android/app/mobtrack-release.keystore`
 
-### Credentials
-* **Keystore Password:** `mobtrack123`
-* **Alias:** `mobtrack-alias`
-* **Key Password:** `mobtrack123`
-
 ---
 
 ## Changing / Regenerating Keystore
