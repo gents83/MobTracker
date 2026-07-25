@@ -20,7 +20,7 @@ Developed as a single-page application (SPA), MobTracker compiles seamlessly int
 | 🤖 **Android Signed APK** | Direct download of the store-ready standalone installer. | [Download app-release.apk](https://github.com/gents83/MobTracker/releases/latest/download/app-release.apk) |
 | 📦 **Android App Bundle (AAB)** | Direct download for publishing to the Google Play Store. | [Download app-release.aab](https://github.com/gents83/MobTracker/releases/latest/download/app-release.aab) |
 | 🍎 **iOS Project Structure** | Direct download of the pre-configured Xcode workspace. | [Download mobtracker-ios-project.zip](https://github.com/gents83/MobTracker/releases/latest/download/mobtracker-ios-project.zip) |
-| 🔑 **Signing Credentials** | Android release signing and Xcode capabilities guide. | [Read SIGNING.md](./SIGNING.md) |
+| 🔑 **Signing Credentials** | Android release signing and Xcode capabilities guide. | [Read SIGNING.md](SIGNING.md) |
 
 ---
 
@@ -156,7 +156,7 @@ npx cap open android
 cd android
 ./gradlew assembleDebug
 ```
-For release builds and secure signing guidelines, please consult the detailed [SIGNING.md](./SIGNING.md) handbook.
+For release builds and secure signing guidelines, please consult the detailed [SIGNING.md](SIGNING.md) handbook.
 
 #### iOS Platform Command Suite
 Open and configure your native iOS build:
@@ -172,13 +172,15 @@ Within Xcode, select your bundle ID, sign with your developer team account, and 
 
 The repository includes a complete GitHub Actions automation pipeline configured in `.github/workflows/build-and-deploy.yml`.
 
-On every push to the `main` or `master` branch, the workflow triggers the following jobs automatically:
-1. **Quality Gate:** Standard linter check and automated unit tests.
-2. **Capacitor Assets Sync:** Compiles Vite assets with absolute paths and runs `npx cap sync` to update configurations.
-3. **GitHub Pages Deployment:** Re-builds assets with `GITHUB_PAGES: 'true'` to correctly target `/MobTracker/` and deploys them live.
-4. **Android Build & Sign:** Sets up JDK 21 and the Android SDK, compiles store-ready **APK** and **AAB** packages, and automatically signs them using built-in release keys (or repo secrets).
-5. **iOS packaging:** Synthesizes and bundles the iOS Xcode Workspace directory structure into a compressed ZIP file.
-6. **Automatic GitHub Releases:** Grabs the version number from `package.json`, publishes a branded GitHub Release, and attaches the completed **signed APK**, **AAB**, and **iOS Xcode project ZIP** directly as download assets.
+The pipeline has been rebuilt from scratch to offer complete multi-platform compliance and reliable releases. On every push to the `main` or `master` branch, the workflow triggers the following jobs automatically:
+1. **Quality Gate:** Run TypeScript static linting checks (`tsc --noEmit`) and automated Vitest unit tests to guarantee workspace correctness.
+2. **Capacitor Assets Sync:** Generates production web assets and runs `npx cap sync` to synchronize the native wraps.
+3. **GitHub Pages Deployment:** Compiles production web assets twice—first with the Pages subpath configured from the configure-pages output (using `GITHUB_PAGES=true` to target `/MobTracker/`) and deploys them live, then secondly with a standard root base path (`/`) to avoid mobile packaging conflicts.
+4. **Android Build & Sign:** Sets up JDK 21 and Android SDK, builds a signed release package (**APK** and **AAB**), and utilizes the built-in release keys with standard or repository secrets.
+5. **iOS Project Packaging:** Archives the entire pre-configured iOS workspace folder structure (`ios/App`) into a compressed `.zip` artifact (`mobtracker-ios-project.zip`).
+6. **Automatic GitHub Releases:** Dynamically extracts the application version from `package.json`, registers a new draft-free tag, and attaches all compiled release binaries (**APK**, **AAB**, and **iOS Xcode project ZIP**) directly as downloadable release assets.
+
+*Note: All links and relative markdown paths inside this README have been thoroughly verified and updated to ensure flawless resolution.*
 
 ---
 

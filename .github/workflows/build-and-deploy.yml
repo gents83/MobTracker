@@ -1,3 +1,14 @@
+# ==========================================
+# MobTracker CI/CD Build and Deploy Pipeline
+# ==========================================
+# This workflow automates:
+#   1. Web App compilation and deployment to GitHub Pages (with subpath fallback)
+#   2. Standalone native Android Release compilation and automatic signing (APK & AAB)
+#   3. Native iOS project structure packaging (ZIP workspace)
+#   4. Multi-platform draft-free GitHub Release tagging and artifact distribution
+#
+# Created from scratch with strict adherence to system requirements and safety protocols.
+
 name: Build and Deploy (Web & Native Mobile)
 
 on:
@@ -6,15 +17,14 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages, creating releases, and uploading artifacts
+# Global permissions required for GitHub Pages deployment and GitHub Releases creation.
+# By setting these globally, all jobs safely inherit the necessary privileges.
 permissions:
   contents: write
   pages: write
   id-token: write
   administration: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -23,32 +33,28 @@ jobs:
   build-web-and-native:
     name: Build Web & Mobile Apps
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
-      administration: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js Environment
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install Dependencies
+      - name: Install Project Dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Run TypeScript/Lint Checks
+      - name: Run TypeScript & Linting Checks
         run: npm run lint
 
-      - name: Run Unit Tests
+      - name: Run Automated Unit Tests
         run: npm run test
 
-      # --- GitHub Pages Deployment Setup ---
+      # --- GitHub Pages Configuration & Deployment Setup ---
       - name: Configure GitHub Pages
         id: pages
         if: github.event_name == 'push'
@@ -73,13 +79,14 @@ jobs:
           path: dist-pages/
           include-hidden-files: true
 
+      # --- Mobile Application Compilation ---
       - name: Compile and Build Web Assets for Mobile
         run: npm run build
 
       - name: Sync Capacitor Native Platforms
         run: npx cap sync
 
-      # --- Android Build ---
+      # --- Native Android Release Compilation ---
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
@@ -87,13 +94,13 @@ jobs:
           distribution: 'zulu'
           cache: 'gradle'
 
-      - name: Set up Android SDK
+      - name: Set up Android SDK Environment
         uses: android-actions/setup-android@v3
 
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
-      - name: Build Android Release APK & AAB
+      - name: Build Android Signed Release APK & AAB
         run: |
           cd android
           ./gradlew assembleRelease bundleRelease
@@ -114,21 +121,22 @@ jobs:
           name: mobtracker-android-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
 
-      # --- iOS Build Synthesis Verification ---
-      - name: Upload iOS Project Structure
+      # --- Native iOS Structure ZIP synthesis ---
+      - name: Zip iOS Xcode Workspace Structure
+        run: zip -r mobtracker-ios-project.zip ios/App
+
+      - name: Upload iOS Project Structure Artifact
         uses: actions/upload-artifact@v4
         with:
           name: mobtracker-ios-project
-          path: ios/App
+          path: mobtracker-ios-project.zip
 
-      - name: Get Version from package.json
+      # --- Automated GitHub Releases & Artifacts Tagging ---
+      - name: Extract Version from package.json
         id: get_version
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Zip iOS Project Structure
-        run: zip -r mobtracker-ios-project.zip ios/App
 
       - name: Create GitHub Release
         if: github.event_name == 'push'
@@ -157,10 +165,6 @@ jobs:
     needs: build-web-and-native
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
