@@ -92,7 +92,7 @@ export default function App() {
   const [geofenceAlert, setGeofenceAlert] = useState(false);
 
   useEffect(() => {
-    if (geofenceEnabled && Notification.permission === 'default') {
+    if (geofenceEnabled && typeof Notification !== 'undefined' && Notification.permission === 'default') {
       Notification.requestPermission();
     }
   }, [geofenceEnabled]);
@@ -164,7 +164,7 @@ export default function App() {
     if (distance > geofenceRadius) {
       if (!geofenceAlert) {
         setGeofenceAlert(true);
-        if (Notification.permission === 'granted') {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
           new Notification('MobTrack Geofence Alert', {
             body: `Device has moved outside the ${geofenceRadius}m radius (${distance.toFixed(0)}m away).`,
           });
