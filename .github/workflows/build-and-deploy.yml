@@ -1,13 +1,8 @@
 # ==========================================
 # MobTracker CI/CD Build and Deploy Pipeline
 # ==========================================
-# This workflow automates:
-#   1. Web App compilation and deployment to GitHub Pages (as static HTML)
-#   2. Standalone native Android Release compilation and automatic signing (APK & AAB)
-#   3. Native iOS project structure packaging (ZIP workspace)
-#   4. Multi-platform draft-free GitHub Release tagging and asset upload
-#
-# Created from scratch with advanced credential masking for maximum security.
+# Automated multi-platform build, sign, and deployment pipeline.
+# Supported Platforms: Web (GitHub Pages), Android (APK/AAB), iOS (ZIP project)
 
 name: Build and Deploy (Web & Native Mobile)
 
@@ -17,12 +12,11 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
-# Global permissions for GitHub Pages deployment and GitHub Releases.
+# Correct and standard global permissions for GitHub Pages and Releases.
 permissions:
   contents: write
   pages: write
   id-token: write
-  administration: write
 
 concurrency:
   group: "pages"
@@ -174,7 +168,7 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           name: Release v${{ steps.get_version.outputs.VERSION }}
           body: |
-            MobTracker first release (v${{ steps.get_version.outputs.VERSION }}).
+            MobTracker Release v${{ steps.get_version.outputs.VERSION }}.
 
             This release includes:
             * Store-ready signed Android APK (`app-release.apk`)
