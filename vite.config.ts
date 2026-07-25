@@ -5,11 +5,20 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    base: process.env.GITHUB_PAGES === 'true'
-      ? (process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.includes('/')
-        ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`
-        : '/MobTracker/')
-      : '/',
+    base: (() => {
+      if (process.env.GITHUB_PAGES === 'true') {
+        let basePath = process.env.VITE_BASE_PATH;
+        if (basePath) {
+          if (!basePath.startsWith('/')) basePath = '/' + basePath;
+          if (!basePath.endsWith('/')) basePath = basePath + '/';
+          return basePath;
+        }
+        return process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.includes('/')
+          ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`
+          : '/MobTracker/';
+      }
+      return '/';
+    })(),
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {

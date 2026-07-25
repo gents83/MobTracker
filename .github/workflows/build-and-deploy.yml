@@ -48,6 +48,7 @@ jobs:
 
       # --- GitHub Pages Deployment Setup ---
       - name: Configure GitHub Pages
+        id: pages
         if: github.event_name == 'push'
         uses: actions/configure-pages@v5
 
@@ -59,6 +60,7 @@ jobs:
           cp dist-pages/index.html dist-pages/404.html
         env:
           GITHUB_PAGES: 'true'
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
       - name: Upload Pages Web Artifact
         if: github.event_name == 'push'
