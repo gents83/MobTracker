@@ -2,12 +2,12 @@
 # MobTracker CI/CD Build and Deploy Pipeline
 # ==========================================
 # This workflow automates:
-#   1. Web App compilation and deployment to GitHub Pages (with subpath fallback)
+#   1. Web App compilation and deployment to GitHub Pages (as static HTML)
 #   2. Standalone native Android Release compilation and automatic signing (APK & AAB)
 #   3. Native iOS project structure packaging (ZIP workspace)
-#   4. Multi-platform draft-free GitHub Release tagging and artifact distribution
+#   4. Multi-platform draft-free GitHub Release tagging and asset upload
 #
-# Created from scratch with strict adherence to system requirements and safety protocols.
+# Created from scratch with advanced credential masking for maximum security.
 
 name: Build and Deploy (Web & Native Mobile)
 
@@ -17,8 +17,7 @@ on:
   pull_request:
     branches: [ "main", "master" ]
 
-# Global permissions required for GitHub Pages deployment and GitHub Releases creation.
-# By setting these globally, all jobs safely inherit the necessary privileges.
+# Global permissions for GitHub Pages deployment and GitHub Releases.
 permissions:
   contents: write
   pages: write
@@ -100,14 +99,44 @@ jobs:
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
+      - name: Set up and Mask Android Signing Credentials
+        id: sign_creds
+        env:
+          RAW_STORE_PWD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          RAW_KEY_AL: ${{ secrets.ANDROID_KEY_ALIAS }}
+          RAW_KEY_PWD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          STORE_PWD="$RAW_STORE_PWD"
+          if [ -z "$STORE_PWD" ]; then
+            STORE_PWD="mobtrack123"
+          fi
+          KEY_AL="$RAW_KEY_AL"
+          if [ -z "$KEY_AL" ]; then
+            KEY_AL="mobtrack-alias"
+          fi
+          KEY_PWD="$RAW_KEY_PWD"
+          if [ -z "$KEY_PWD" ]; then
+            KEY_PWD="mobtrack123"
+          fi
+
+          # Register values with GHA masking runner to redact them in execution logs
+          echo "::add-mask::$STORE_PWD"
+          echo "::add-mask::$KEY_AL"
+          echo "::add-mask::$KEY_PWD"
+
+          # Expose as environment variables for subsequent steps
+          echo "ANDROID_KEYSTORE_PASSWORD=$STORE_PWD" >> $GITHUB_ENV
+          echo "ANDROID_KEY_ALIAS=$KEY_AL" >> $GITHUB_ENV
+          echo "ANDROID_KEY_PASSWORD=$KEY_PWD" >> $GITHUB_ENV
+
       - name: Build Android Signed Release APK & AAB
         run: |
           cd android
           ./gradlew assembleRelease bundleRelease
         env:
-          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD || 'mobtrack123' }}
-          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS || 'mobtrack-alias' }}
-          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD || 'mobtrack123' }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ env.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ env.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ env.ANDROID_KEY_PASSWORD }}
 
       - name: Upload Android Release APK Artifact
         uses: actions/upload-artifact@v4
