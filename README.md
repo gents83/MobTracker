@@ -20,8 +20,6 @@ Developed as a single-page application (SPA), MobTracker compiles seamlessly int
 | 🤖 **Android Signed APK** | Direct download of the store-ready standalone installer. | [Download app-release.apk](https://github.com/gents83/MobTracker/releases/latest/download/app-release.apk) |
 | 📦 **Android App Bundle (AAB)** | Direct download for publishing to the Google Play Store. | [Download app-release.aab](https://github.com/gents83/MobTracker/releases/latest/download/app-release.aab) |
 | 🍎 **iOS Project Structure** | Direct download of the pre-configured Xcode workspace. | [Download mobtracker-ios-project.zip](https://github.com/gents83/MobTracker/releases/latest/download/mobtracker-ios-project.zip) |
-| 🔑 **Signing Credentials** | Android release signing and Xcode capabilities guide. | [Read SIGNING.md](SIGNING.md) |
-
 ---
 
 ## 🚀 Key Features & Modes of Operation
