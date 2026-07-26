@@ -4,6 +4,81 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MobTracker</title>
+    <script>
+      (function() {
+        window.addEventListener('error', function(event) {
+          var err = event.error || new Error(event.message || 'Unknown Error');
+          showErrorOverlay(err);
+        });
+        window.addEventListener('unhandledrejection', function(event) {
+          var err = event.reason || new Error('Unhandled Promise Rejection');
+          showErrorOverlay(err);
+        });
+
+        function showErrorOverlay(error) {
+          if (document.getElementById('error-overlay')) return;
+          var overlay = document.createElement('div');
+          overlay.id = 'error-overlay';
+          overlay.style.position = 'fixed';
+          overlay.style.top = '0';
+          overlay.style.left = '0';
+          overlay.style.width = '100vw';
+          overlay.style.height = '100vh';
+          overlay.style.backgroundColor = '#020617';
+          overlay.style.color = '#f87171';
+          overlay.style.fontFamily = 'monospace';
+          overlay.style.padding = '24px';
+          overlay.style.boxSizing = 'border-box';
+          overlay.style.zIndex = '999999';
+          overlay.style.overflowY = 'auto';
+
+          var title = document.createElement('h1');
+          title.innerText = '⚠️ MOBTRACK_OS: BOOT_FAILURE';
+          title.style.color = '#ef4444';
+          title.style.borderBottom = '1px solid #334155';
+          title.style.paddingBottom = '12px';
+          title.style.fontSize = '20px';
+          title.style.marginTop = '0';
+          overlay.appendChild(title);
+
+          var desc = document.createElement('p');
+          desc.innerText = 'An unhandled exception occurred during application startup. Below is the diagnostic telemetry:';
+          desc.style.color = '#94a3b8';
+          desc.style.fontSize = '14px';
+          desc.style.lineHeight = '1.5';
+          overlay.appendChild(desc);
+
+          var pre = document.createElement('pre');
+          pre.style.backgroundColor = '#1e293b';
+          pre.style.padding = '16px';
+          pre.style.borderRadius = '8px';
+          pre.style.fontSize = '12px';
+          pre.style.color = '#f1f5f9';
+          pre.style.overflowX = 'auto';
+          pre.style.border = '1px solid #475569';
+          pre.style.whiteSpace = 'pre-wrap';
+          pre.innerText = error ? (error.stack || error.message || String(error)) : 'Unknown Startup Error';
+          overlay.appendChild(pre);
+
+          var help = document.createElement('p');
+          help.innerHTML = '<strong>TROUBLESHOOTING:</strong> Ensure your system Android WebView is updated to the latest version. Clear application cache and storage and try restarting if the problem persists.';
+          help.style.color = '#f59e0b';
+          help.style.fontSize = '13px';
+          help.style.lineHeight = '1.5';
+          help.style.marginTop = '20px';
+          overlay.appendChild(help);
+
+          // If document.body is not yet loaded, wait for DOMContentLoaded or append to documentElement
+          if (document.body) {
+            document.body.appendChild(overlay);
+          } else {
+            document.addEventListener('DOMContentLoaded', function() {
+              document.body.appendChild(overlay);
+            });
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
