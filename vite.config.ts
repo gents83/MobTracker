@@ -20,6 +20,9 @@ export default defineConfig(() => {
       return '/';
     })(),
     plugins: [react(), tailwindcss()],
+    build: {
+      target: 'es2020',
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
