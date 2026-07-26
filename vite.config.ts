@@ -20,7 +20,7 @@ export default defineConfig(({ command }) => {
           ? `/${process.env.GITHUB_REPOSITORY.split('/')[1]}/`
           : '/MobTracker/';
       }
-      return './';
+      return '/';
     })(),
     plugins: [react(), tailwindcss()],
     build: {
