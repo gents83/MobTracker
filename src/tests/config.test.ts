@@ -17,12 +17,12 @@ describe('Vite Config Base Path Resolving', () => {
     expect(config.base).toBe('/');
   });
 
-  it('resolves base path to "./" when running in build mode and GITHUB_PAGES is not "true" (native app / Capacitor target)', async () => {
+  it('resolves base path to "/" when running in build mode and GITHUB_PAGES is not "true" (native app / Capacitor target)', async () => {
     const configModule = await import('../../vite.config');
     const configFn = configModule.default;
     const config = typeof configFn === 'function' ? configFn({ command: 'build', mode: 'production' }) : configFn;
 
-    expect(config.base).toBe('./');
+    expect(config.base).toBe('/');
   });
 
   it('resolves base path to GITHUB_REPOSITORY subpath when GITHUB_PAGES is "true"', async () => {
