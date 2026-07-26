@@ -56,7 +56,11 @@ export default function App() {
     setRecentSearches(prev => {
       const filtered = prev.filter(p => p !== searchedPhone);
       const updated = [searchedPhone, ...filtered].slice(0, 3);
-      localStorage.setItem('recentSearches', JSON.stringify(updated));
+      try {
+        localStorage.setItem('recentSearches', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('localStorage write failed:', err);
+      }
       return updated;
     });
   };
@@ -65,7 +69,11 @@ export default function App() {
     e.stopPropagation();
     setRecentSearches(prev => {
       const updated = prev.filter(p => p !== phoneToRemove);
-      localStorage.setItem('recentSearches', JSON.stringify(updated));
+      try {
+        localStorage.setItem('recentSearches', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('localStorage write failed:', err);
+      }
       return updated;
     });
   };
@@ -119,7 +127,11 @@ export default function App() {
     if (!name) return;
     const updated = [...savedPairs, { id: pairId, name, date: new Date().toISOString() }];
     setSavedPairs(updated);
-    localStorage.setItem('savedPairs', JSON.stringify(updated));
+    try {
+      localStorage.setItem('savedPairs', JSON.stringify(updated));
+    } catch (err) {
+      console.warn('localStorage write failed:', err);
+    }
   };
 
   const connectSavedPair = (id: string) => {
@@ -132,7 +144,11 @@ export default function App() {
   const removeSavedPair = (id: string) => {
     const updated = savedPairs.filter(p => p.id !== id);
     setSavedPairs(updated);
-    localStorage.setItem('savedPairs', JSON.stringify(updated));
+    try {
+      localStorage.setItem('savedPairs', JSON.stringify(updated));
+    } catch (err) {
+      console.warn('localStorage write failed:', err);
+    }
   };
 
   const [locationHistory, setLocationHistory] = useState<LocationHistoryEntry[]>(() => {
@@ -190,14 +206,22 @@ export default function App() {
         return prev;
       }
       const updated = [{ id, lat, lng, timestamp: Date.now() }, ...prev];
-      localStorage.setItem('locationHistory', JSON.stringify(updated));
+      try {
+        localStorage.setItem('locationHistory', JSON.stringify(updated));
+      } catch (err) {
+        console.warn('localStorage write failed:', err);
+      }
       return updated;
     });
   }, []);
 
   const clearHistory = () => {
     setLocationHistory([]);
-    localStorage.removeItem('locationHistory');
+    try {
+      localStorage.removeItem('locationHistory');
+    } catch (err) {
+      console.warn('localStorage remove failed:', err);
+    }
   };
 
   const exportCSV = () => {

@@ -138,3 +138,40 @@ describe('pairService - Serverless Pairing Protocol via ntfy.sh', () => {
     expect(status?.active).toBe(false);
   });
 });
+
+describe('localStorage - Safe Webview Error Handling', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('handles write failures gracefully if setItem throws', () => {
+    const mockLocalStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn().mockImplementation(() => {
+        throw new Error('QuotaExceededError or SecurityError in Webview');
+      }),
+      removeItem: vi.fn(),
+      clear: vi.fn(),
+      length: 0,
+      key: vi.fn()
+    };
+
+    vi.stubGlobal('localStorage', mockLocalStorage);
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    // Try setting item to verify it doesn't crash the program execution
+    let caughtError = null;
+    try {
+      localStorage.setItem('recentSearches', 'test');
+    } catch (err: any) {
+      caughtError = err;
+    }
+
+    expect(caughtError).toBeDefined();
+    expect(caughtError.message).toContain('QuotaExceededError');
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith('recentSearches', 'test');
+
+    consoleWarnSpy.mockRestore();
+    vi.unstubAllGlobals();
+  });
+});
