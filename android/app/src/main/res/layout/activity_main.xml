@@ -1,12 +1,355 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:orientation="vertical"
+    android:background="#020617"> <!-- slate-950 -->
 
-    <WebView
+    <!-- Header Bar -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:background="#0f172a"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MOBTRACK_OS"
+            android:textColor="#10b981"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SECURE NATIVE"
+            android:textColor="#10b981"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Custom Native Tabs -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:background="#0f172a">
+
+        <Button
+            android:id="@+id/btnTabLocator"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="LOCATOR"
+            android:textColor="#f8fafc"
+            android:textSize="11sp"
+            style="?android:attr/borderlessButtonStyle" />
+
+        <Button
+            android:id="@+id/btnTabPairing"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="PAIR"
+            android:textColor="#f8fafc"
+            android:textSize="11sp"
+            style="?android:attr/borderlessButtonStyle" />
+
+        <Button
+            android:id="@+id/btnTabHistory"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="HISTORY"
+            android:textColor="#f8fafc"
+            android:textSize="11sp"
+            style="?android:attr/borderlessButtonStyle" />
+    </LinearLayout>
+
+    <!-- Tab Content Area -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- Tab 1: Locator Content -->
+        <LinearLayout
+            android:id="@+id/tabLocatorContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="visible">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TARGET IDENTIFIER PREFIX (INTL FORMAT)"
+                android:textColor="#64748b"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+
+            <EditText
+                android:id="@+id/etPhoneInput"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="+39 333 123 4567"
+                android:textColorHint="#475569"
+                android:textColor="#10b981"
+                android:background="#0f172a"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:textSize="14sp"
+                android:inputType="phone"
+                android:layout_marginBottom="12dp" />
+
+            <Button
+                android:id="@+id/btnInitiateLocator"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="INITIATE LOCATOR"
+                android:textColor="#020617"
+                android:backgroundTint="#10b981"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Locator Result Card -->
+            <LinearLayout
+                android:id="@+id/llLocatorResultCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#0f172a"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvLocatorResultTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#10b981"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvLocatorResultDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#94a3b8"
+                    android:textSize="12sp"
+                    android:lineSpacingMultiplier="1.2" />
+
+                <Button
+                    android:id="@+id/btnLocatorReveal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="REVEAL"
+                    android:textColor="#10b981"
+                    android:backgroundTint="#1e293b"
+                    android:textSize="10sp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <WebView
+                android:id="@+id/webViewLocatorMap"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#020617" />
+        </LinearLayout>
+
+        <!-- Tab 2: Pairing Content -->
+        <LinearLayout
+            android:id="@+id/tabPairingContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnGeneratePairing"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="GENERATE PAIRING LINK"
+                android:textColor="#f8fafc"
+                android:backgroundTint="#1e293b"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Control panel when generated -->
+            <LinearLayout
+                android:id="@+id/llPairingControlPanel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tvPairingLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#64748b"
+                    android:textSize="10sp"
+                    android:background="#0f172a"
+                    android:padding="8dp"
+                    android:layout_marginBottom="12dp" />
+
+                <EditText
+                    android:id="@+id/etCustomMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="I invite you to share your live location via MobTrack. Tap here to accept:"
+                    android:textColor="#f8fafc"
+                    android:background="#0f172a"
+                    android:padding="8dp"
+                    android:textSize="12sp"
+                    android:gravity="top"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <Button
+                        android:id="@+id/btnShareWhatsapp"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="WA"
+                        android:backgroundTint="#25D366"
+                        android:textColor="#ffffff"
+                        android:layout_marginRight="4dp"
+                        android:textSize="10sp" />
+
+                    <Button
+                        android:id="@+id/btnShareTelegram"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="TG"
+                        android:backgroundTint="#229ED9"
+                        android:textColor="#ffffff"
+                        android:layout_marginRight="4dp"
+                        android:textSize="10sp" />
+
+                    <Button
+                        android:id="@+id/btnShareSMS"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="SMS"
+                        android:backgroundTint="#475569"
+                        android:textColor="#ffffff"
+                        android:layout_marginRight="4dp"
+                        android:textSize="10sp" />
+
+                    <Button
+                        android:id="@+id/btnShareOther"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:text="OTHER"
+                        android:backgroundTint="#10b981"
+                        android:textColor="#020617"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnToggleAutoRefresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:text="STOP ACTIVE POLLING"
+                    android:textColor="#ffffff"
+                    android:backgroundTint="#EF4444"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:id="@+id/tvPairingStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="AWAITING UPLINK..."
+                    android:textColor="#10b981"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="12dp" />
+            </LinearLayout>
+
+            <WebView
+                android:id="@+id/webViewPairingMap"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#020617" />
+        </LinearLayout>
+
+        <!-- Tab 3: History Content -->
+        <LinearLayout
+            android:id="@+id/tabHistoryContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <Button
+                    android:id="@+id/btnExportCSV"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="EXPORT CSV"
+                    android:textColor="#10b981"
+                    android:backgroundTint="#1e293b"
+                    android:layout_marginRight="8dp" />
+
+                <Button
+                    android:id="@+id/btnClearHistory"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text="CLEAR"
+                    android:textColor="#EF4444"
+                    android:backgroundTint="#1e293b" />
+            </LinearLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:background="#0f172a"
+                android:padding="8dp"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:id="@+id/llHistoryList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+
+            <WebView
+                android:id="@+id/webViewHistoryMap"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="#020617" />
+        </LinearLayout>
+
+    </FrameLayout>
+</LinearLayout>
