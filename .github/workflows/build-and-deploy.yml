@@ -161,12 +161,30 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Force Recreate and Push Git Tag
+        if: github.event_name == 'push'
+        run: |
+          VERSION="${{ steps.get_version.outputs.VERSION }}"
+          TAG="v$VERSION"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Force delete the tag locally if it exists
+          git tag -d "$TAG" 2>/dev/null || true
+
+          # Recreate tag pointing to current commit
+          git tag "$TAG"
+
+          # Force push the tag to remote
+          git push origin "refs/tags/$TAG" --force
+
       - name: Create GitHub Release
         if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.get_version.outputs.VERSION }}
           name: Release v${{ steps.get_version.outputs.VERSION }}
+          make_latest: true
           body: |
             MobTracker Release v${{ steps.get_version.outputs.VERSION }}.
 
