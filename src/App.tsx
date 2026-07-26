@@ -101,8 +101,12 @@ export default function App() {
 
   // Location History State
   const [savedPairs, setSavedPairs] = useState<{id: string, name: string, date: string}[]>(() => {
-    const saved = localStorage.getItem('savedPairs');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('savedPairs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
 
   const saveCurrentPair = () => {
@@ -132,8 +136,12 @@ export default function App() {
   };
 
   const [locationHistory, setLocationHistory] = useState<LocationHistoryEntry[]>(() => {
-    const saved = localStorage.getItem('locationHistory');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('locationHistory');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [historySearchQuery, setHistorySearchQuery] = useState('');
