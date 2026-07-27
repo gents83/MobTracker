@@ -50,6 +50,52 @@ public class NativeAppUnitTest {
         assertTrue("Device should trigger geofence alert", distanceMeters > smallSafeRadiusMeters);
     }
 
+    @Test
+    public void testCleanPhoneNumber() {
+        String phoneInput = " +39-333 123-4567 ";
+        String cleanPhone = phoneInput.trim().replaceAll("[^0-9+]", "");
+        if (!cleanPhone.startsWith("+")) {
+            cleanPhone = "+" + cleanPhone;
+        }
+        assertEquals("+393331234567", cleanPhone);
+
+        String phoneInputNoPlus = "39 333 123 4567";
+        String cleanPhoneNoPlus = phoneInputNoPlus.trim().replaceAll("[^0-9+]", "");
+        if (!cleanPhoneNoPlus.startsWith("+")) {
+            cleanPhoneNoPlus = "+" + cleanPhoneNoPlus;
+        }
+        assertEquals("+393331234567", cleanPhoneNoPlus);
+    }
+
+    @Test
+    public void testPrefixMatching() {
+        // We simulate prefix matching as implemented in MainActivity
+        String cleanPhone = "+393331234567";
+        String matchedCode = null;
+
+        // Simulating the COUNTRY_MAP keys
+        String[] countryKeys = {"39", "1", "44", "33", "49", "34", "81", "91", "55", "7", "61", "86"};
+
+        for (String code : countryKeys) {
+            if (cleanPhone.startsWith("+" + code)) {
+                matchedCode = code;
+                break;
+            }
+        }
+        assertEquals("39", matchedCode);
+
+        // Let's test US
+        cleanPhone = "+14155552671";
+        matchedCode = null;
+        for (String code : countryKeys) {
+            if (cleanPhone.startsWith("+" + code)) {
+                matchedCode = code;
+                break;
+            }
+        }
+        assertEquals("1", matchedCode);
+    }
+
     // Standard Haversine distance calculator helper in kilometers
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
         double R = 6371; // radius of Earth in km
