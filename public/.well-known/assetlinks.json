@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mobtrack.app",
+      "sha256_cert_fingerprints": [
+        "07:5C:FE:85:CE:4B:DD:25:6C:F4:A5:5C:11:18:3A:3E:0E:8A:85:17:3E:2B:B3:65:72:56:77:4D:8A:3C:93:3D",
+        "B8:0C:70:9C:EA:88:DA:8F:CC:39:24:0E:EA:DB:5F:88:9A:AD:6D:1C:A4:20:75:01:55:D2:46:B0:D6:6A:EA:03",
+        "5E:50:BC:D1:FC:39:3D:59:67:84:5C:01:96:1E:44:66:4B:46:F9:FC:37:33:DF:43:59:09:46:9F:86:A5:40:2F"
+      ]
+    }
+  }
+]
