@@ -35,6 +35,7 @@ export default function App() {
   
   const [isPrivacyMode, setIsPrivacyMode] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   // Locator State
   const [phone, setPhone] = useState('');
@@ -1111,6 +1112,78 @@ export default function App() {
             </div>
           )}
         </main>
+
+        {/* Footer */}
+        <footer className={`p-3 text-center border-t text-[11px] font-mono transition-colors shrink-0 ${isDark ? 'bg-slate-950 border-slate-800 text-slate-500' : 'bg-slate-50 border-blue-100 text-blue-500'}`}>
+          <button
+            onClick={() => setShowPrivacyModal(true)}
+            className={`hover:underline font-semibold ${isDark ? 'text-emerald-500/80 hover:text-emerald-400' : 'text-blue-600 hover:text-blue-700'}`}
+          >
+            Privacy Policy
+          </button>
+          <span className="mx-2">•</span>
+          <span>v1.0.0</span>
+        </footer>
+
+        {/* Privacy Policy Modal */}
+        {showPrivacyModal && (
+          <div className="absolute inset-0 z-[100] flex flex-col animate-in fade-in slide-in-from-bottom-5 duration-300">
+            <div className={`flex-1 flex flex-col ${isDark ? 'bg-slate-950 text-slate-300' : 'bg-slate-50 text-slate-800'}`}>
+              <header className={`p-4 border-b flex items-center justify-between sticky top-0 z-10 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-blue-200'}`}>
+                <div className="flex items-center gap-2">
+                  <ShieldAlert className={`w-5 h-5 ${isDark ? 'text-emerald-400' : 'text-blue-600'}`} />
+                  <span className={`font-bold tracking-widest text-xs ${isDark ? 'text-emerald-400' : 'text-blue-700'}`}>PRIVACY POLICY</span>
+                </div>
+                <button
+                  onClick={() => setShowPrivacyModal(false)}
+                  className={`p-1.5 rounded-lg border transition-colors ${isDark ? 'border-slate-800 bg-slate-900/50 text-slate-400 hover:text-emerald-400' : 'border-blue-200 bg-white/50 text-blue-500 hover:text-blue-700'}`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </header>
+
+              <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs leading-relaxed no-scrollbar">
+                <div className={`p-3 rounded-lg border text-[10px] ${isDark ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
+                  <strong>100% Client-Side & Serverless:</strong> MobTracker is designed with privacy at its absolute core. We do not maintain any centralized user databases, require any logins/accounts, or persistently log your personal information on our own servers.
+                </div>
+
+                <section className="space-y-1">
+                  <h3 className={`font-bold border-b pb-1 text-[11px] ${isDark ? 'text-white border-slate-800' : 'text-slate-800 border-blue-200'}`}>1. INTRODUCTION</h3>
+                  <p>This Privacy Policy describes how MobTracker handles personal and sensitive user data. This policy applies to both the web application and the native mobile applications compiled for Android and iOS devices.</p>
+                </section>
+
+                <section className="space-y-1">
+                  <h3 className={`font-bold border-b pb-1 text-[11px] ${isDark ? 'text-white border-slate-800' : 'text-slate-800 border-blue-200'}`}>2. SENSITIVE PERMISSIONS</h3>
+                  <p className="font-semibold text-emerald-500">A. Precise Location Data</p>
+                  <p>MobTracker offers an opt-in Pair Tracking (device-to-device tracking) feature. If and only if you voluntarily accept a location sharing request, the App accesses your precise coordinates (latitude and longitude) using standard device GPS and network-based Geolocation APIs. This location data is securely transmitted as encrypted/obfuscated packets to a transient, public HTTP pub/sub messaging relay (ntfy.sh) purely to let your paired partner track your location in real-time. It is not stored permanently, and you may terminate sharing instantly at any time.</p>
+                  <p className="font-semibold text-emerald-500">B. Phone Number Inputs</p>
+                  <p>All phone number searches run 100% client-side. The geocoding and carrier lookup processes are executed entirely locally inside your browser or native device webview by deserializing embedded static BSON resources. No phone numbers, search terms, or query logs are ever sent to a remote server.</p>
+                  <p className="font-semibold text-emerald-500">C. Local Storage Cache</p>
+                  <p>Your recent phone number queries, paired session history, and saved persistent pairs are stored directly in your browser or device's local memory (localStorage) and never synchronized to a cloud service or remote database.</p>
+                </section>
+
+                <section className="space-y-1">
+                  <h3 className={`font-bold border-b pb-1 text-[11px] ${isDark ? 'text-white border-slate-800' : 'text-slate-800 border-blue-200'}`}>3. THIRD-PARTY SERVICES</h3>
+                  <p>Location updates are published via a free public instance of ntfy.sh, which acts purely as a transient message relay and does not persistently store coordinates. Interactive maps are rendered using OpenStreetMap tiles.</p>
+                </section>
+
+                <section className="space-y-1">
+                  <h3 className={`font-bold border-b pb-1 text-[11px] ${isDark ? 'text-white border-slate-800' : 'text-slate-800 border-blue-200'}`}>4. DATA SHARING & DISCLOSURE</h3>
+                  <p>Your location, phone prefix searches, and device telemetry are never rented, sold, or shared with advertisers or commercial third parties. Your coordinates are shared exclusively with the person/device holding your unique generated pairing link.</p>
+                </section>
+
+                <section className="space-y-1">
+                  <h3 className={`font-bold border-b pb-1 text-[11px] ${isDark ? 'text-white border-slate-800' : 'text-slate-800 border-blue-200'}`}>5. USER CHOICE & CONTROLS</h3>
+                  <p>You can stop location sharing at any time simply by closing the active sharing tab or closing the App. You can revoke Geolocation permission at any time through your device settings. You can instantly clear your entire cache (recent prefix lookups, saved pairs, coordinate logs) by using the "CLEAR" or "Trash/Delete" buttons in the app.</p>
+                </section>
+
+                <p className={`text-[9px] text-center pt-3 border-t ${isDark ? 'text-slate-500 border-slate-800' : 'text-slate-400 border-blue-200'}`}>
+                  © 2026 MobTracker • Open Source under Apache License 2.0
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

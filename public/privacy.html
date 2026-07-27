@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - MobTracker</title>
+    <style>
+        :root {
+            --bg-color: #020617;
+            --container-bg: #0f172a;
+            --text-color: #94a3b8;
+            --title-color: #f1f5f9;
+            --primary-color: #10b981; /* Emerald */
+            --border-color: #1e293b;
+            --accent-bg: #1e293b;
+            --accent-text: #34d399;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--container-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-b: 1px solid var(--border-color);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--title-color);
+            font-size: 1.8rem;
+            margin: 0 0 8px 0;
+            letter-spacing: 0.05em;
+        }
+
+        h2 {
+            color: var(--title-color);
+            font-size: 1.3rem;
+            margin-top: 32px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            letter-spacing: 0.03em;
+        }
+
+        h3 {
+            color: var(--primary-color);
+            font-size: 1rem;
+            margin-top: 20px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin: 0 0 16px 0;
+        }
+
+        ul {
+            margin: 0 0 16px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--accent-bg);
+            color: var(--accent-text);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        .highlight-box {
+            background-color: rgba(16, 185, 129, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 24px;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        footer {
+            margin-top: 48px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="badge">SECURE TELEMETRY</div>
+            <h1>MOBTRACKER PRIVACY POLICY</h1>
+            <p style="color: var(--primary-color); font-size: 0.9rem; margin: 0;">Last Updated: July 27, 2026</p>
+        </header>
+
+        <div class="highlight-box">
+            <p><strong>100% Client-Side & Serverless:</strong> MobTracker is designed with privacy at its absolute core. We do not maintain any centralized user databases, require any logins/accounts, or persistently log your personal information on our own servers.</p>
+        </div>
+
+        <section>
+            <h2>1. Introduction</h2>
+            <p>This Privacy Policy describes how <strong>MobTracker</strong> (also referred to as "the App", "we", "us", or "our") handles personal and sensitive user data. This policy applies to both the web application hosted on GitHub Pages and the native mobile applications compiled for Android and iOS devices.</p>
+            <p>Our goal is to be fully transparent about what data is accessed, how it is used, and the privacy controls at your disposal.</p>
+        </section>
+
+        <section>
+            <h2>2. Sensitive Permissions & Data Collection</h2>
+            <p>The App requests access to certain sensitive device permissions and data in order to provide its core functionalities. Below is a detailed description of each type of data handled:</p>
+
+            <h3>A. Precise Location Data</h3>
+            <p>MobTracker offers an opt-in <strong>Pair Tracking</strong> (device-to-device tracking) feature. If and only if you voluntarily accept a location sharing request:</p>
+            <ul>
+                <li>The App accesses your precise location (latitude and longitude) using standard device GPS and network-based Geolocation APIs (e.g., <code>navigator.geolocation.watchPosition</code>).</li>
+                <li>Your coordinates are securely transmitted as encrypted/obfuscated packets to a transient, public HTTP pub/sub messaging relay (<strong>ntfy.sh</strong>).</li>
+                <li>This location data is used exclusively to visualize your real-time position on your paired partner's local map and is not stored permanently.</li>
+                <li>The location data is only collected while the App is actively running or sharing is kept open. You may terminate sharing instantly at any time.</li>
+            </ul>
+
+            <h3>B. Phone Number Inputs</h3>
+            <p>The App features an <strong>Offline Region Locator</strong> allowing you to input a phone number to visualize its registration country/region calling code:</p>
+            <ul>
+                <li><strong>All phone number searches run 100% client-side.</strong></li>
+                <li>The geocoding and carrier lookup processes are executed entirely locally inside your browser or native device webview by deserializing embedded static BSON resources.</li>
+                <li><strong>No phone numbers, search terms, or query logs are ever sent to a remote server.</strong></li>
+            </ul>
+
+            <h3>C. Recent Searches & History (Local Storage)</h3>
+            <ul>
+                <li>Your recent phone number queries, paired session history, and saved persistent pairs are stored directly in your browser or device's local memory (<code>localStorage</code>).</li>
+                <li>This data remains strictly on your individual device and is never synchronized to a cloud service or remote database.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Third-Party Services & Relays</h2>
+            <p>To enable real-time coordination without centralized database storage, MobTracker utilizes third-party services:</p>
+            <ul>
+                <li><strong>ntfy.sh (HTTP Relay Service):</strong> Location updates are published via a free public instance of <a href="https://ntfy.sh" target="_blank" rel="noopener noreferrer">ntfy.sh</a>. This service acts purely as a transient message relay and does not persistently store location coordinates.</li>
+                <li><strong>OpenStreetMap & Leaflet:</strong> Interactive maps are rendered using OpenStreetMap tiles. Map interactions do not transmit any personal identifiers or search data to OpenStreetMap servers.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>4. Data Sharing & Disclosures</h2>
+            <p>We are committed to keeping your personal data confidential:</p>
+            <ul>
+                <li><strong>No Commercial Sharing:</strong> Your location, phone prefix searches, and device telemetry are never rented, sold, or shared with advertisers or commercial third parties.</li>
+                <li><strong>Exclusive P2P Transmission:</strong> Your coordinates are shared exclusively with the person/device holding the randomized, unique pairing link that you generated or accepted.</li>
+                <li><strong>Secure URL Identifiers:</strong> Pairing links utilize XOR-based symmetric obfuscation and URL-safe Base64 encoding to prevent the exposure of raw session IDs in browser history or networks.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>5. User Choice & Data Deletion Controls</h2>
+            <p>You have full, autonomous control over your privacy settings within MobTracker:</p>
+            <ul>
+                <li><strong>Stop Location Sharing:</strong> Simply close the active location-sharing tab or close the App to terminate the live broadcasting of location coordinates.</li>
+                <li><strong>Revoke Permissions:</strong> You can revoke Geolocation permission at any time through your mobile device's system settings or browser site settings.</li>
+                <li><strong>Wipe Local Data:</strong> You can instantly clear your entire cache, including recent prefix lookups, saved pairs, and coordinate logs, by using the <strong>"CLEAR"</strong> or <strong>"Trash/Delete"</strong> buttons provided in the user interface.</li>
+                <li><strong>Privacy Mode:</strong> Enable <strong>"Privacy Mode"</strong> (the eye icon toggle) in the app header to automatically redact all raw coordinates and force a manual "REVEAL" action before rendering latitude or longitude coordinates.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>6. Security Measures</h2>
+            <p>We implement robust technical mechanisms to secure your experience:</p>
+            <ul>
+                <li>All network communications with the public relay use encrypted HTTPS protocols.</li>
+                <li>Pairing links use client-side obfuscation keys to secure transaction details from passive sniffing.</li>
+                <li>We do not collect or request user names, passwords, email addresses, or biometric profiles.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Google Play Compliance Statement</h2>
+            <p>This policy complies with the Google Play Developer Program policies regarding User Data and Location Data. We declare that:
+                <ul>
+                    <li>We do not access background location data without explicit notification, and no hidden data harvesting operations are present.</li>
+                    <li>No high-privilege Android permissions (such as <code>READ_SMS</code> or <code>READ_CONTACTS</code>) are declared or used by this application.</li>
+                </ul>
+            </p>
+        </section>
+
+        <section>
+            <h2>8. Contact Information</h2>
+            <p>For inquiries, support, or code reviews, please visit our official open-source repository on GitHub: <a href="https://github.com/gents83/MobTracker" target="_blank" rel="noopener noreferrer">github.com/gents83/MobTracker</a>.</p>
+        </section>
+
+        <footer>
+            <p>© 2026 MobTracker (MOBTRACK_OS) • Open Source under Apache License 2.0</p>
+        </footer>
+    </div>
+</body>
+</html>

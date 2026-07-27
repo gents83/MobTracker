@@ -16,6 +16,7 @@ Developed as a single-page application (SPA), MobTracker compiles seamlessly int
 | Asset / Page | Description | Link |
 |:---|:---|:---|
 | 🌐 **Live Web Application** | Open and use MobTracker directly in your browser. | [Open MobTracker on GitHub Pages](https://gents83.github.io/MobTracker/) |
+| 🛡️ **Privacy Policy** | Official Google Play Store-compliant privacy statement. | [View Privacy Policy](https://gents83.github.io/MobTracker/privacy.html) |
 | 📦 **Latest GitHub Releases** | View tags, change logs, and build outputs. | [MobTracker Releases](https://github.com/gents83/MobTracker/releases) |
 | 🤖 **Android Signed APK** | Direct download of the store-ready standalone installer. | [Download app-release.apk](https://github.com/gents83/MobTracker/releases/latest/download/app-release.apk) |
 | 📦 **Android App Bundle (AAB)** | Direct download for publishing to the Google Play Store. | [Download app-release.aab](https://github.com/gents83/MobTracker/releases/latest/download/app-release.aab) |
