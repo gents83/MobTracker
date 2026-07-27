@@ -97,4 +97,37 @@ describe('App store compliance and multi-platform validation tests', () => {
       expect(content).toContain("target: 'es2020'");
     });
   });
+
+  // 5. Google Play Store Privacy Policy Compliance
+  describe('Privacy Policy Compliance', () => {
+    it('verifies that public/privacy.html exists and is non-empty', () => {
+      const privacyPath = path.resolve(__dirname, '../../public/privacy.html');
+      expect(fs.existsSync(privacyPath)).toBe(true);
+
+      const content = fs.readFileSync(privacyPath, 'utf8');
+      expect(content.length).toBeGreaterThan(500);
+    });
+
+    it('verifies that the privacy policy includes mandatory disclosures for Google Play Store submission', () => {
+      const privacyPath = path.resolve(__dirname, '../../public/privacy.html');
+      const content = fs.readFileSync(privacyPath, 'utf8');
+
+      // Check for core identity and key compliance declarations
+      expect(content).toContain('MobTracker');
+      expect(content.toLowerCase()).toContain('privacy policy');
+      expect(content).toContain('Location Data');
+      expect(content).toContain('ntfy.sh');
+      expect(content).toContain('localStorage');
+      expect(content).toContain('Google Play Compliance');
+    });
+
+    it('verifies that the Privacy Policy is integrated and accessible inside the application logic', () => {
+      const appPath = path.resolve(__dirname, '../../src/App.tsx');
+      const content = fs.readFileSync(appPath, 'utf8');
+
+      // Ensure footer or modal mechanism to toggle privacy overlay is defined
+      expect(content).toContain('showPrivacyModal');
+      expect(content).toContain('Privacy Policy');
+    });
+  });
 });
