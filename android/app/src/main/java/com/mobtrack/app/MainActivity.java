@@ -1,5 +1,6 @@
 package com.mobtrack.app;
 
+import androidx.core.splashscreen.SplashScreen;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -129,6 +130,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
