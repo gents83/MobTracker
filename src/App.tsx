@@ -10,6 +10,7 @@ import Radar from './components/Radar';
 import RegionMap from './components/RegionMap';
 import { localLookup } from './utils/browserLookup';
 import { generatePairId, updatePairLocation, getPairStatus } from './services/pairService';
+import { encryptPairId, decryptPairId } from './utils/crypto';
 
 interface LocationResult {
   lat: number;
@@ -87,7 +88,15 @@ export default function App() {
 
   // Pair Tracking Receiver State
   const searchParams = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
-  const initialPairId = searchParams.get('pair');
+  const initialPairId = (() => {
+    const rawPair = searchParams.get('pair');
+    if (rawPair) return rawPair;
+    const obfuscatedPair = searchParams.get('p');
+    if (obfuscatedPair) {
+      return decryptPairId(obfuscatedPair);
+    }
+    return null;
+  })();
   const [isReceiver] = useState(!!initialPairId);
   const [receiverPairId] = useState(initialPairId);
   const [isSharing, setIsSharing] = useState(false);
@@ -136,7 +145,8 @@ export default function App() {
 
   const connectSavedPair = (id: string) => {
     setPairId(id);
-    const link = `${window.location.origin}${window.location.pathname}?pair=${id}`;
+    const obfuscated = encryptPairId(id);
+    const link = `${window.location.origin}${window.location.pathname}?p=${obfuscated}`;
     setPairLink(link);
     setIsPairPolling(true);
   };
@@ -354,7 +364,8 @@ export default function App() {
       setError(null);
       const id = generatePairId();
       setPairId(id);
-      const link = `${window.location.origin}${window.location.pathname}?pair=${id}`;
+      const obfuscated = encryptPairId(id);
+      const link = `${window.location.origin}${window.location.pathname}?p=${obfuscated}`;
       setPairLink(link);
       if (navigator.vibrate) navigator.vibrate(50);
       setIsPairPolling(true);
