@@ -1122,7 +1122,7 @@ export default function App() {
             Privacy Policy
           </button>
           <span className="mx-2">•</span>
-          <span>v1.0.0</span>
+          <span>v1.0.2</span>
         </footer>
 
         {/* Privacy Policy Modal */}
