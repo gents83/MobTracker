@@ -1,7 +1,7 @@
 {
   "name": "react-example",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "prepare-resources": "rm -rf public/resources && mkdir -p public && cp -r node_modules/libphonenumber-geo-carrier/resources public/resources",
